@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARGYVASA v2 — Resilience Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9eef0;--panel:#f6f9fa;--ink:#14232e;--mute:#5b6b76;--line:#c3cfd5;--ok:#1f7a74;--warn:#b57312;--bad:#b3382c;--nav:#10202b;--cas:#2c5d8a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b141a;--panel:#14232c;--ink:#e3ecf0;--mute:#8ea2ad;--line:#2b3f4b;--ok:#4fc0b6;--warn:#e0a13d;--bad:#ee7466;--nav:#060c10;--cas:#7db2e0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b141a;--panel:#14232c;--ink:#e3ecf0;--mute:#8ea2ad;--line:#2b3f4b;--ok:#4fc0b6;--warn:#e0a13d;--bad:#ee7466;--nav:#060c10;--cas:#7db2e0;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 "Schibsted Grotesk",system-ui,sans-serif}
+.hd{background:var(--nav);color:#e8f0f3;padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.wm{font-weight:800;font-size:22px;letter-spacing:.04em}.wm span{font-weight:400;opacity:.6}.tg{font-size:12.5px;opacity:.7}
+.hr{display:flex;gap:12px;align-items:center;font-size:13px}
+main{max-width:1100px;margin:0 auto;padding:12px 14px 24px}
+h2{font-size:15px;font-weight:600;margin:0 0 8px}.sub{color:var(--mute);font-size:13px}
+.badge{padding:3px 10px;border-radius:99px;font-weight:600;font-size:13px;border:1.5px solid;background:var(--panel)}
+.badge.ok{color:var(--ok);border-color:var(--ok)}.badge.warn{color:var(--warn);border-color:var(--warn)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+button{font:inherit;font-weight:600;padding:7px 12px;border-radius:8px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--ink);color:var(--bg)}button:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+#cap{min-height:42px;padding:9px 12px;border-left:4px solid var(--warn);background:var(--panel);margin:0 0 10px;font-weight:600}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+.kp{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:8px;padding:7px 10px}
+.kp.warn{border-left-color:var(--warn)}.kp.bad{border-left-color:var(--bad)}.kp span{display:block;font-size:12.5px;color:var(--mute)}.kp b{font-size:21px}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:10px;overflow-x:auto}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;margin-bottom:-2px;color:var(--mute)}.tabs button.on{color:var(--ink);border-bottom-color:var(--ink)}
+.tab{display:none}.tab.on{display:block}
+.map{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px}svg{width:100%;height:auto;display:block}
+.lk{stroke:var(--mute);stroke-width:2}.lk.down{stroke:var(--bad);stroke-dasharray:6 5}.hit{stroke:transparent;stroke-width:18;cursor:pointer}
+.nd{cursor:pointer}.nd circle,.nd path{fill:var(--panel);stroke-width:2.5}.nd.main circle,.nd.main path{stroke:var(--ok)}.nd.iso circle,.nd.iso path{stroke:var(--warn)}.nd.off circle,.nd.off path{stroke:var(--mute);stroke-dasharray:4 3;fill:var(--line)}.dyn{stroke-width:1.2;stroke-dasharray:2 4;opacity:.45}svg .nd circle.pulse{fill:none;stroke:var(--bad);stroke-width:2;animation:pl 1.4s ease-out infinite}svg .nd circle.pulse.r{stroke:var(--ok)}@keyframes pl{from{r:12px;opacity:.9}to{r:34px;opacity:0}}@media(prefers-reduced-motion:reduce){svg .nd circle.pulse{animation:none;r:24px}}
+.nd text{text-anchor:middle;fill:var(--ink)}.nd .r{font-weight:800;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}td,th{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}
+.chip{font-weight:600}.FRESH{color:var(--ok)}.AGING,.PENDING{color:var(--warn)}.STALE,.UNKNOWN,.BLOCKED,.FAILED,.DENIED{color:var(--bad)}.DONE,.APPROVED,.EXECUTED{color:var(--ok)}
+.zg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.zc{border:1px solid var(--line);border-radius:8px;padding:6px;font-size:12.5px}
+#log{font-size:12.5px;max-height:260px;overflow:auto;margin:0;padding:0;list-style:none}#log li{padding:2px 0;border-bottom:1px dotted var(--line)}
+#log .warn{color:var(--warn)}#log .bad{color:var(--bad)}#log .ok{color:var(--ok)}
+.bb{height:12px;background:var(--line);border-radius:6px;margin:3px 0 8px;overflow:hidden}.bb i{display:block;height:100%;background:var(--ok)}.bb.l i{background:var(--mute)}
+.note{font-size:12.5px;color:var(--mute);margin-top:14px}
+@media(min-width:900px){#tab-ops.on{display:grid;grid-template-columns:1.05fr 1fr;gap:12px;align-items:start}#tab-ops .grid{margin-top:0;grid-template-columns:1fr}svg{max-height:84vh}}@media(max-width:520px){.kpi{grid-template-columns:repeat(3,1fr)}.kp{padding:5px 8px}.kp b{font-size:18px}.kp span{font-size:11.5px}}svg .nd circle.sense{fill:none;stroke-width:1;stroke-dasharray:2 5;opacity:.3;pointer-events:none}svg circle.radar{animation:pl 1.6s ease-out infinite;pointer-events:none}@media(prefers-reduced-motion:reduce){svg circle.radar{animation:none}}@media(prefers-reduced-motion:no-preference){.nd circle,.lk{transition:stroke .3s,fill .3s}}
+</style></head><body>
+<header class="hd"><div><div class="wm">ARGYVASA <span>v2</span></div><div class="tg">Interactive digital-twin prototype · rule-based simulation · no real-world actuation.</div></div>
+<div class="hr"><span>Tick <b id="tick">0</b></span><span>Seed <b id="seed">42</b></span><span id="mode" class="badge ok">Connected</span></div></header>
+<main>
+<div class="bar"><button class="pri" id="guided">Play guided demo</button><button id="run">Run</button><button id="step">Step</button><button id="cut">Partition mesh</button><button id="heal">Reconnect</button><button id="reset">Reset</button><label class="sub" style="align-self:center"><input type="checkbox" id="auto"> Simulated operator auto-approves</label></div>
+<div id="cap">Press “Play guided demo”, or tap any link or node to break it yourself.</div>
+<div id="kpi" class="kpi"></div>
+<nav class="tabs"><button class="on" data-tab="ops">Operations</button><button data-tab="risk">Risk</button><button data-tab="exp">Experiment</button><button data-tab="log">Timeline</button></nav>
+<section class="tab on" id="tab-ops"><div class="map"><label class="sub" style="padding:4px 6px;display:block"><input type="checkbox" id="gt"> Evaluator overlay: reveal hidden ground truth</label><svg id="svg" viewBox="0 0 620 700" role="img" aria-label="F-Mesh topology with 37 nodes: nine each of D, F, I and R plus the Brain"></svg><div class="sub" style="padding:6px 6px 2px">B global Brain. F ground tower with a local brain. D surveillance drone, roams the whole area and links to 3 to 5 towers. I interceptor, mobile. R rescue, ambulance and protection, mobile. Sector colour shows risk. Dashed marker: a threat the system has not seen yet. A lethal attack, C criminal activity, + rescue needed.</div></div>
+<div class="grid"><div class="card"><h2 id="threatTitle">Threat board · system-known events</h2><table id="threats"></table></div><div class="card"><h2>Evidence ledger (latest)</h2><table id="evidence"></table><p class="sub">Accepted observations are retained here for audit. The zone estimate remains a simplified latest-observation estimate, not probabilistic fusion.</p></div>
+<div class="card"><h2>Estimate vs ground truth</h2><label class="sub">Brain view <select id="view"><option value="BR">Global Brain</option><option value="F1">Local brain at F1</option><option value="F2">Local brain at F2</option><option value="F3">Local brain at F3</option><option value="F4">Local brain at F4</option><option value="F5">Local brain at F5</option><option value="F6">Local brain at F6</option><option value="F7">Local brain at F7</option><option value="F8">Local brain at F8</option><option value="F9">Local brain at F9</option></select></label><div id="zones" class="zg"></div><div class="sub" style="margin-top:6px">Ground truth is evaluator-only and hidden by default. Enable the evaluator overlay to reveal it. Switch the view to compare global and tower-local estimates.</div></div>
+<div class="card"><h2>Tasks (latest)</h2><table id="tasks"></table></div>
+<div class="card"><h2>Active mobile units</h2><table id="units"></table></div>
+<div class="card"><h2>Interception proposals</h2><table id="props"></table></div></div></section>
+<section class="tab" id="tab-risk"><div class="card"><h2>Risk assessment per zone</h2><table id="risk"></table><p class="sub" style="margin-top:8px">Score = 0.5 × hazard (Brain’s estimate) + 0.2 × evidence uncertainty (age ÷ 10 ticks) + 0.1 × confidence gap + 0.2 × no reachable idle interceptor. LOW below 0.35, MODERATE 0.35 to 0.59, HIGH 0.60 and above. Stale or unknown evidence is never rated LOW. Security-unit dispatch is simulated and requires human approval. Node stop/restart controls are manual test controls. The weights are demo settings, not validated values.</p></div></section>
+<section class="tab" id="tab-exp"><div class="card"><h2>Experiment: local-only vs F-Mesh offloading</h2><p class="sub">Same 8 seeds and same faults for both strategies: mesh links to sectors 7 to 9 cut at ticks 12 to 34, towers F5 and F8 down at ticks 22 to 34, 44 ticks per run.</p><button class="pri" id="runexp">Run experiment</button><div id="expout" style="margin-top:10px"></div></div></section>
+<section class="tab" id="tab-log"><div class="grid"><div class="card"><h2>Metrics</h2><table id="mt"></table></div><div class="card"><h2>Event timeline</h2><ul id="log"></ul></div></div></section>
+<p class="note">Prototype boundary: software simulation only. Coordination is rule-based, not trained AI. Task offloading is a heuristic model, not real distributed execution. Ground truth is hidden from system-facing panels unless the evaluator overlay is enabled. I-unit actions are simulated; dispatch requires approval. Risk weights and sensor noise are illustrative, not validated operational values.</p>
+</main>
+<script>
+const $=s=>document.querySelector(s);let seed=42,R,S,timer,MODE='mesh';
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const ORB={},N=[['BR','B',310,38,0]],L=[],CX=[110,310,510],CY=[190,390,590],ZN=[];
+for(let i=0;i<9;i++){const c=CX[i%3],r=CY[Math.floor(i/3)],k=i+1;ZN.push('Z'+k);
+ ORB['D'+k]=[c,r];N.push(['F'+k,'F',c,r,0],['D'+k,'D',c,r-30,'Z'+k],['I'+k,'I',c-50,r+36,0],['R'+k,'R',c+50,r+36,0]);
+ if(i%3<2)L.push(['F'+k,'F'+(k+1)]);if(i<6)L.push(['F'+k,'F'+(k+3)])}
+['F1','F2','F3'].forEach(f=>L.push(['BR',f]));
+const NMT={ATTACK:'Lethal attack',CRIME:'Criminal activity',CASUALTY:'Rescue needed'},SPAWN={4:['ATTACK',170,255],10:['CASUALTY',470,300],15:['CRIME',300,470],27:['CASUALTY',300,625],31:['ATTACK',470,640]},CUT=[['F4','F7'],['F5','F8'],['F6','F9']],FN=['F1','F2','F3','F4','F5','F6','F7','F8','F9'];
+const SCRIPT={2:'Drones roam the whole area and link to 3 to 5 towers each. Every tower runs a local brain and the global Brain fuses them. Interceptors (I) and rescue units (R) are mobile.',
+4:'Threat 1: a lethal attack begins in sector 1. The dashed red marker is hidden ground truth. The system has not seen it yet.',
+8:'A drone has detected it and the Brain proposes an interceptor. It moves only after a human approves (a simulated operator does here).',
+10:'Threat 2: people need rescue in sector 3. Rescue units go automatically, because rescue is low risk.',
+12:'Mesh cut: links to the bottom row are severed. Multi-homed drones still feed the global Brain through towers on the other side.',
+15:'Threat 3: criminal activity in the centre. Watch the nearest interceptor travel there and contain it.',
+22:'Towers F5 and F8 fail. Drones over the bottom row now reach only isolated towers, so their reports buffer.',
+27:'Threat 4: a rescue need appears in the blind spot. The Brain cannot see it until the link returns.',
+31:'Threat 5: a lethal attack in the same blind spot. If it waits too long it escalates and creates casualties.',
+36:'Restored: buffered reports arrive, responses are dispatched and the backlog clears.',
+48:'Guided run finished. Check the threat board and metrics, or tap any tower, drone or unit to inject your own faults.'};
+function log(m,c){S.log.unshift(`<li class="${c||''}">t${S.t} ${m}</li>`);S.log.length=Math.min(S.log.length,40)}
+function init(){R=rng(seed);clearInterval(timer);S={mode:MODE,hl:false,lat:[],t:0,run:false,guided:false,nodes:{},links:L.map(([a,b])=>({a,b,up:true})),truth:{},est:{},hi:{},seen:new Set(),evidence:[],buf:[],tasks:[],props:[],log:[],eid:0,tid:0,m:{acc:0,done:0,off:0,offDone:0,dup:0,conf:0,flushed:0,blocked:0,unauth:0,err:0,errN:0}};
+ZN.forEach(z=>{S.truth[z]=.3;S.est[z]=null;S.hi[z]=false});S.threats=[];S.tbuf=[];S.xid=0;S.rts=[];S.base={};ZN.forEach(z=>S.base[z]=.15);
+N.forEach(n=>S.nodes[n[0]]={id:n[0],role:n[1],x:n[2],y:n[3],zone:n[4],cap:n[1]=='B'?6:n[1]=='F'?(n[0]=='F5'?4:1):1,up:true});S.deg={};S.units={};S.loc={};FN.forEach(f=>S.loc[f]={});['I','R'].forEach(r=>{for(let k=1;k<=9;k++){const n=S.nodes[r+k];S.units[r+k]={base:[n.x,n.y],tgt:null,st:'IDLE'}}});flyDrones();moveUnits();log('Simulation ready, seed '+seed);$('#run').textContent='Run';render()}
+function reach(f){const d={};if(!S.nodes[f].up)return d;d[f]=0;const q=[f];while(q.length){const c=q.shift();if(c!=f&&'DIR'.includes(S.nodes[c].role))continue;S.links.forEach(l=>{if(!l.up)return;const o=l.a==c?l.b:l.b==c?l.a:null;if(o&&S.nodes[o].up&&d[o]==null){d[o]=d[c]+1;q.push(o)}})}return d}
+function comps(){const s=new Set(),o=[];Object.keys(S.nodes).forEach(id=>{if(s.has(id)||!S.nodes[id].up||'DIR'.includes(S.nodes[id].role))return;const r=Object.keys(reach(id));r.forEach(x=>s.add(x));o.push(r)});return o}
+function setLink(a,b,up){const l=S.links.find(l=>(l.a==a&&l.b==b)||(l.a==b&&l.b==a));if(l)l.up=up}
+function fresh(z,E){const e=(E||S.est)[z];if(!e)return['UNKNOWN',null];const a=S.t-e.tick;return[a<=4?'FRESH':a<=10?'AGING':'STALE',a]}
+function riskOf(z){const e=S.est[z],[f,a]=fresh(z),hz=e?e.val:0,unc=e?Math.min(1,a/10):1,cg=e?1-e.conf:1,comm=nearest('I',z)?0:1,sc=.5*hz+.2*unc+.1*cg+.2*comm;
+ let lvl=sc>=.6?'HIGH':sc>=.35?'MODERATE':'LOW';if((f=='STALE'||f=='UNKNOWN')&&lvl=='LOW')lvl='MODERATE';return{hz,unc,cg,comm,sc,lvl}}
+function viewEst(){const v=document.querySelector('#view').value;return v&&v!='BR'&&S.loc[v]?S.loc[v]:S.est}
+function deliver(ev,replay){
+ if(S.seen.has(ev.id)){S.m.dup++;log('Duplicate '+ev.id+' ignored');return}
+ S.seen.add(ev.id);
+ const prior=[...S.evidence].reverse().find(x=>x.zone===ev.zone&&x.src!==ev.src&&Math.abs(x.val-ev.val)>.4&&Math.abs(x.tick-ev.tick)<=8);
+ S.evidence.push({...ev,receivedAt:S.t,replayed:!!replay});if(S.evidence.length>250)S.evidence.shift();
+ if(prior){S.m.conf++;log(`Conflict in ${ev.zone}: ${prior.src} read ${prior.val}, ${ev.src} read ${ev.val}. Both records retained in the evidence ledger.`,'warn')}
+ const e=S.est[ev.zone];if(!e||ev.tick>=e.tick)S.est[ev.zone]={id:ev.id,src:ev.src,val:ev.val,conf:ev.conf,tick:ev.tick};
+ if(!replay&&R()<.1)deliver(ev,false)}
+function zc(z){const i=+z.slice(1)-1;return[CX[i%3],CY[Math.floor(i/3)]]}
+function zoneAt(x,y){const c=Math.min(2,Math.max(0,Math.round((x-110)/200))),r=Math.min(2,Math.max(0,Math.round((y-190)/200)));return'Z'+(r*3+c+1)}
+function uplinks(n,min,max){S.links=S.links.filter(l=>l.a!=n.id);if(!n.up)return[];
+ const c=FN.filter(f=>S.nodes[f].up).map(f=>[f,Math.hypot(S.nodes[f].x-n.x,S.nodes[f].y-n.y)]).sort((a,b)=>a[1]-b[1]);
+ const inRange=c.filter(x=>x[1]<=250);const chosen=inRange.length>=min?inRange.slice(0,max):c.slice(0,Math.min(max,c.length));const pk=chosen.map(x=>x[0]);pk.forEach(f=>S.links.push({a:n.id,b:f,up:true,dyn:true}));return pk}
+function flyDrones(){const t=S.t;Object.values(S.nodes).filter(n=>n.role=='D').forEach(n=>{const k=+n.id.slice(1);n.px=n.x;n.py=n.y;
+ if(n.up){n.x=Math.round(310+265*Math.sin(.13*t+k*.7));n.y=Math.round(420+245*Math.sin(.17*t+k*1.9))}
+ const tw=uplinks(n,3,5);n.tw=tw;const bad=n.up&&tw.length<3;
+ if(bad!==!!S.deg[n.id]){S.deg[n.id]=bad;if(t>0)log(bad?`${n.id} degraded: only ${tw.length} tower link(s)`:`${n.id} back to 3 or more tower links`,bad?'warn':'ok')}});
+ S.tm=performance.now()}
+function nearest(role,z){const[zx,zy]=Array.isArray(z)?z:zc(z),br=reach('BR');let b=null,bd=1e9;Object.values(S.nodes).forEach(n=>{if(n.role!=role||!n.up||S.units[n.id].st!='IDLE'||br[n.id]==null)return;const d=Math.hypot(n.x-zx,n.y-zy);if(d<bd){bd=d;b=n.id}});return b}
+function spawn(ty,x,y){const h={id:'X'+(++S.xid),ty,x:Math.round(Math.min(580,Math.max(40,x))),y:Math.round(Math.min(660,Math.max(140,y))),t0:S.t,st:'ACTIVE',conf:+(.6+R()*.4).toFixed(2),det:null,brain:null,by:null};S.threats.push(h);S.m.spawn=(S.m.spawn||0)+1;log(`${NMT[ty]} ${h.id} begins in ${zoneAt(h.x,h.y)} (hidden from the system)`,'bad')}
+function learn(h){h.brain=S.t;log(`Brain confirms ${h.id}: ${NMT[h.ty]} in ${zoneAt(h.x,h.y)} (confidence ${h.conf})`,'warn');respond(h)}
+function dispatch(id,h,authorized=false){const u=S.units[id];if(id[0]=='I'&&!authorized){S.m.unauth=(S.m.unauth||0)+1;log('Safety guard blocked an interceptor dispatch without approval','bad');return false}u.tgt=[h.x,h.y];u.st='DISPATCHED';u.zone=zoneAt(h.x,h.y);u.th=h.id;h.st='RESPONDING';h.resp=id;return true}
+function respond(h){if(h.st!='ACTIVE'||h.den)return;const pos=[h.x,h.y],z=zoneAt(h.x,h.y);
+ if(h.ty=='CASUALTY'){const ru=nearest('R',pos);if(ru){dispatch(ru,h);S.m.resc=(S.m.resc||0)+1;log(`${ru} (ambulance, protection, relief) dispatched to ${h.id}: nearest idle unit, automatic, low risk`,'ok')}return}
+ if(S.props.some(p=>p.th==h.id&&p.auth=='PENDING'))return;
+ const iu=nearest('I',pos),rk=riskOf(z);
+ if(!iu){if(!h.warned){h.warned=true;S.m.blocked++;S.props.push({id:'P'+(S.props.length+1),th:h.id,ty:NMT[h.ty],zone:z,iu:'none',risk:'HIGH',zr:rk.lvl,why:'no reachable idle interceptor',auth:'BLOCKED',t0:S.t});log(`No reachable idle interceptor for ${h.id}`,'bad')}return}
+ S.props.push({id:'P'+(S.props.length+1),th:h.id,ty:NMT[h.ty],zone:z,iu,risk:'HIGH',zr:rk.lvl,why:`${NMT[h.ty]}, confidence ${h.conf}, seen by ${h.by}, zone score ${rk.sc.toFixed(2)}`,auth:'PENDING',t0:S.t});log(`P${S.props.length}: ${iu} proposed to intercept ${h.id}. Waiting for human approval`,'warn')}
+function approve(p,a,auto){if(p.auth!='PENDING')return;const h=S.threats.find(x=>x.id==p.th);
+ if(a=='APPROVED'){const u=S.units[p.iu];if(h&&h.st=='ACTIVE'&&u&&u.st=='IDLE'){if(dispatch(p.iu,h,true)){p.auth='APPROVED';log(`${p.id} approved by ${auto?'simulated operator':'operator'}. ${p.iu} moving to ${h.id}`,'ok')}else{p.auth='BLOCKED';S.m.blocked++}}else{p.auth='BLOCKED';S.m.blocked++;log(`${p.id}: ${p.iu} no longer needed or available`,'bad')}}
+ else{p.auth='DENIED';if(h)h.den=true;log(`${p.id} denied by operator`,'warn')}}
+function send(id,z){const u=S.units[id];u.tgt=zc(z);u.st='DISPATCHED';u.zone=z}
+function moveUnits(){const t=S.t;Object.values(S.nodes).filter(n=>n.role=='I'||n.role=='R').forEach(n=>{const u=S.units[n.id];n.px=n.x;n.py=n.y;
+ if(n.up){if(u.st=='ON_SCENE'&&t>=u.until){u.st='RETURNING';u.tgt=u.base}
+  if(u.tgt){const dx=u.tgt[0]-n.x,dy=u.tgt[1]-n.y,d=Math.hypot(dx,dy),sp=75;
+   if(d<=sp){n.x=u.tgt[0];n.y=u.tgt[1];if(u.st=='DISPATCHED'){u.st='ON_SCENE';u.until=t+5;const h=S.threats.find(x=>x.id==u.th);
+    if(h&&h.st=='RESPONDING'){h.st='RESOLVED';h.rtick=t;h.rt=t-h.t0;S.m.res=(S.m.res||0)+1;S.rts.push(h.rt);log(`${n.id} ${n.role=='I'?'intercepted and contained '+h.id+' (simulated)':'reached the casualties at '+h.id+' and gave aid'}, ${h.rt} ticks after it began`,'ok')}else log(`${n.id} on scene in ${u.zone}`,'ok')}else if(u.st=='RETURNING'){u.st='IDLE';u.tgt=null}}
+   else{n.x=Math.round(n.x+dx/d*sp);n.y=Math.round(n.y+dy/d*sp)}}}
+ uplinks(n,1,1)})}
+function load(id){return S.tasks.filter(k=>k.status=='RUNNING'&&k.node==id).length}
+function pick(o,cost){const r=reach(o);let b={n:o,t:Math.ceil(cost/S.nodes[o].cap)+load(o),off:false};
+ FN.concat('BR').forEach(id=>{if(S.mode=='local'||id==o||r[id]==null)return;const t=Math.ceil(cost/S.nodes[id].cap)+2*r[id]+load(id);if(t<b.t)b={n:id,t,off:true}});return b}
+function assign(k){if(!S.nodes[k.origin].up){k.status='FAILED';log(k.id+' failed safely: origin offline','bad');return}
+ const p=pick(k.origin,k.cost);k.node=p.n;k.left=p.t;k.status='RUNNING';k.off=p.off;if(p.off)S.m.off++
+ log(`${k.id} from ${k.origin} runs on ${p.n} (${p.off?'offloaded':'local'}, ${p.t} ticks${k.retries?', retry '+k.retries:''})`)}
+function tick(){S.t++;const t=S.t;flyDrones();moveUnits();const br=reach('BR');S.tbuf=S.tbuf.filter(id=>{const h=S.threats.find(x=>x.id==id);if(!h||h.st!='ACTIVE')return false;if(br[h.by]!=null){learn(h);return false}return true});
+ const rest=[];let n=0;S.buf.forEach(ev=>{if(br[ev.src]!=null){deliver(ev,true);n++}else rest.push(ev)});S.buf=rest;
+ if(n){S.m.flushed+=n;log(`Reconnected: replayed ${n} buffered events`,'ok')}
+ ZN.forEach(z=>{S.base[z]=Math.min(.3,Math.max(.05,S.base[z]+(R()-.5)*.08));S.truth[z]=Math.min(1,S.base[z]+.45*S.threats.filter(h=>(h.st=='ACTIVE'||h.st=='RESPONDING')&&zoneAt(h.x,h.y)==z).length)});
+ Object.values(S.nodes).filter(x=>x.role=='D').forEach(d=>{if(!d.up||R()>.7)return;
+  const z=zoneAt(d.x,d.y),v=+Math.min(1,Math.max(0,S.truth[z]+(R()-.5)*(d.id=='D6'?.9:.2))).toFixed(2);
+  const ev={id:'E'+(++S.eid),src:d.id,zone:z,tick:t,val:v,conf:+(.6+R()*.4).toFixed(2)};
+  (d.tw||[]).forEach(f=>{const l=S.loc[f],e0=l[z];if(!e0||ev.tick>=e0.tick)l[z]={id:ev.id,src:ev.src,val:ev.val,conf:ev.conf,tick:ev.tick}});
+  if(br[d.id]!=null)deliver(ev,false);else S.buf.push(ev)});
+ if(t%2==0){const o=FN[Math.floor(R()*9)];if(S.nodes[o].up){const k={id:'T'+(++S.tid),origin:o,cost:4+Math.floor(R()*11),retries:0,off:false,t0:t};S.tasks.push(k);S.m.acc++;assign(k)}}
+ S.tasks.filter(k=>k.status=='RUNNING').forEach(k=>{const r=reach(k.origin);
+  if(!S.nodes[k.node].up||r[k.node]==null){if(k.retries<2){k.retries++;log(k.id+' lost its node, retrying','warn');assign(k)}else{k.status='FAILED';log(k.id+' failed safely after retries','bad')}return}
+  if(--k.left<=0){k.status='DONE';S.lat.push(t-k.t0);S.m.done++;if(k.off)S.m.offDone++}});
+if(!S.hl&&!S.guided&&R()<.08&&S.threats.filter(h=>h.st=='ACTIVE'||h.st=='RESPONDING').length<3){const r0=R();spawn(r0<.3?'ATTACK':r0<.6?'CRIME':'CASUALTY',40+R()*540,150+R()*500)}
+ S.threats.forEach(h=>{if(h.st=='RESOLVED'||h.st=='EXPIRED')return;const age=t-h.t0;
+  if(!h.det)Object.values(S.nodes).forEach(d=>{if(h.det||d.role!='D'||!d.up)return;if(Math.hypot(d.x-h.x,d.y-h.y)<=90&&R()<.85){h.det=t;h.by=d.id;S.m.det=(S.m.det||0)+1;log(`${d.id} detected ${h.id} (${NMT[h.ty]}) in ${zoneAt(h.x,h.y)}`,'warn');if(br[d.id]!=null)learn(h);else{S.tbuf.push(h.id);log(`${h.id} report buffered: ${d.id} cannot reach the Brain`,'bad')}}});
+  if(h.ty=='ATTACK'&&!h.esc&&age>=12){h.esc=true;S.m.harm=(S.m.harm||0)+1;log(`${h.id} escalated: casualties expected nearby`,'bad');spawn('CASUALTY',h.x+30,h.y+20)}
+  if(age>30&&!h.missed){h.missed=true;S.m.missed=(S.m.missed||0)+1;log(`${h.id} passed its 30-tick deadline`,'bad');if(h.st!='RESPONDING')h.st='EXPIRED'}
+  else if(h.brain&&h.st=='ACTIVE')respond(h)});
+ S.props.forEach(p=>{if(p.auth=='PENDING'&&document.querySelector('#auto').checked&&t-p.t0>=2)approve(p,'APPROVED',true)});
+ ZN.forEach(z=>{const e=S.est[z],[f]=fresh(z);if(e){S.m.err+=Math.abs(S.truth[z]-e.val);S.m.errN++}if(f=='STALE'||f=='UNKNOWN')S.m.stale=(S.m.stale||0)+1});
+ if(S.guided&&SPAWN[t])spawn(...SPAWN[t]);
+ if(S.guided&&SCRIPT[t]){$('#cap').textContent=SCRIPT[t];
+  if(t==12){CUT.forEach(([a,b])=>setLink(a,b,false));const cc=comps().length;log(`Fault verification at partition start: ${cc} backbone component(s)`,cc>1?'warn':'bad')}if(t==22){S.nodes.F5.up=false;S.nodes.F8.up=false;log('F5 and F8 stopped','bad')}
+  if(t==36){CUT.forEach(([a,b])=>setLink(a,b,true));S.nodes.F5.up=true;S.nodes.F8.up=true;log('Mesh restored, F5 and F8 restarted','ok');log(`Recovery verification: ${comps().length} backbone component(s)`,comps().length==1?'ok':'warn')}
+  if(t==48){S.guided=false;go(false)}}
+ if(!S.hl)render()}
+function render(){const cs=comps(),part=cs.length>1;$('#tick').textContent=S.t;$('#seed').textContent=seed;
+ const m=$('#mode');m.textContent=part?'Partitioned: '+cs.length+' groups':'Connected';m.className='badge '+(part?'warn':'ok');
+ const g={};cs.forEach((c,i)=>c.forEach(id=>g[id]=i));let s='';
+ for(let i=0;i<9;i++){const k=riskOf('Z'+(i+1)),x=CX[i%3]-100,y=CY[Math.floor(i/3)]-78,col=k.lvl=='HIGH'?'var(--bad)':k.lvl=='MODERATE'?'var(--warn)':'var(--ok)';
+  s+=`<rect x="${x}" y="${y}" width="200" height="176" rx="12" fill="${col}" fill-opacity=".10" stroke="${col}" stroke-opacity=".45"/><text x="${x+8}" y="${y+168}" font-size="13" font-weight="600" fill="${col}">Sector ${i+1}: ${k.lvl}</text>`}
+ S.links.forEach((l,i)=>{const a=S.nodes[l.a],b=S.nodes[l.b],p=`x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"`;s+=`<line ${p} class="lk ${l.dyn?'dyn ':''}${l.up?'':'down'}"${l.dyn?` data-dl="${l.a}"`:''}/>`+(l.dyn?'':`<line ${p} data-l="${i}" class="hit" tabindex="0" role="button" aria-label="Toggle link ${l.a} to ${l.b}"><title>${l.a} to ${l.b}: tap or press Enter to ${l.up?'fail':'restore'}</title></line>`)});
+ const NM={B:'Global Brain',F:'Ground tower',D:'Surveillance drone',I:'Response unit',R:'Rescue unit'},
+ shp=n=>n.role=='F'?'<path d="M0,-16 L12,12 L-12,12 Z"/>':n.role=='I'?'<path d="M0,-13 L13,0 L0,13 L-13,0 Z"/>':n.role=='D'?'<circle class="sense" r="85"/><circle r="8"/><circle cx="-11" cy="-8" r="4"/><circle cx="11" cy="-8" r="4"/><circle cx="-11" cy="8" r="4"/><circle cx="11" cy="8" r="4"/>':n.role=='B'?'<circle r="22"/><circle r="15"/>':'<circle r="11"/>';
+ Object.values(S.nodes).forEach(n=>{const c=!n.up?'off':g[n.id]===g.BR?'main':'iso',dp=S.units[n.id]&&(S.units[n.id].st=='DISPATCHED'||S.units[n.id].st=='ON_SCENE');
+  s+=`<g class="nd ${c}" data-n="${n.id}" transform="translate(${n.x},${n.y})"><title>${n.id} ${NM[n.role]}${n.up?'':' (stopped)'}: tap to ${n.up?'stop':'restart'}</title>${dp?`<circle class="pulse ${n.role=='R'?'r':''}" r="18"/>`:''}${shp(n)}<text class="r" y="${n.role=='F'?9:4}">${n.role}</text></g>`});
+ const TC={ATTACK:'var(--bad)',CRIME:'var(--warn)',CASUALTY:'var(--cas)'},TL={ATTACK:'A',CRIME:'C',CASUALTY:'+'},gt=document.querySelector('#gt').checked;
+ S.threats.forEach(h=>{if(h.st=='EXPIRED'||(h.st=='RESOLVED'&&S.t-h.rtick>4))return;const known=!!h.brain,col=TC[h.ty];if(!known&&!gt&&h.st!='RESOLVED')return;
+  if(h.det&&S.t-h.det<=2&&S.nodes[h.by])s+=`<line x1="${S.nodes[h.by].x}" y1="${S.nodes[h.by].y}" x2="${h.x}" y2="${h.y}" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+  const st=h.st=='RESOLVED'?'Resolved':h.st=='RESPONDING'?'Responding':known?'Known to the Brain':h.det?'Detected, report buffered':'Not yet seen by the system';
+  s+=`<g transform="translate(${h.x},${h.y})"><title>${h.id} ${NMT[h.ty]}: ${st}</title>`+(h.st=='RESOLVED'?`<circle r="13" fill="var(--panel)" stroke="var(--ok)" stroke-width="3"/><text text-anchor="middle" y="5" font-size="14" font-weight="800" fill="var(--ok)">✓</text>`:`<circle r="${known?13:10}" fill="${known?col:'none'}" stroke="${col}" stroke-width="2" ${known?'':'stroke-dasharray="3 3"'}/><text text-anchor="middle" y="5" font-size="13" font-weight="800" fill="${known?'#fff':col}">${TL[h.ty]}</text>${known?`<circle class="radar" r="13" fill="none" stroke="${col}" stroke-width="2"/>`:''}`)+'</g>'});
+ Object.entries(S.units).forEach(([id,u])=>{if(u.st=='DISPATCHED'){const n=S.nodes[id];s+=`<line data-ml="${id}" x1="${n.x}" y1="${n.y}" x2="${u.tgt[0]}" y2="${u.tgt[1]}" stroke="${id[0]=='I'?'var(--bad)':'var(--cas)'}" stroke-width="2" stroke-dasharray="6 4"/>`}});
+ $('#svg').innerHTML=s;
+ $('#zones').innerHTML=ZN.map(z=>{const E=viewEst(),e=E[z],[f,a]=fresh(z,E);return`<div class="zc"><b>${z}</b> <span class="chip ${f}">${f}</span><br>estimate ${e?e.val.toFixed(2):'none'}<br>${$('#gt').checked?'ground truth '+S.truth[z].toFixed(2):'ground truth hidden'}</div>`}).join('');
+ $('#risk').innerHTML='<tr><th>Zone</th><th>Hazard</th><th>Evidence uncertainty</th><th>Interceptor available</th><th>Score</th><th>Level</th></tr>'+ZN.map(z=>{const k=riskOf(z);return`<tr><td>${z}</td><td>${S.est[z]?k.hz.toFixed(2):'–'}</td><td>${k.unc.toFixed(2)}</td><td>${k.comm?'no':'yes'}</td><td>${k.sc.toFixed(2)}</td><td class="chip ${k.lvl=='HIGH'?'STALE':k.lvl=='MODERATE'?'AGING':'FRESH'}">${k.lvl}</td></tr>`}).join('');
+ const M=S.m,pc=(a,b)=>b?Math.round(100*a/b)+'%':'–',up=Object.values(S.nodes).filter(n=>n.up).length;
+ $('#mt').innerHTML=[['Nodes online',up+' of 37'],['Task completion',pc(M.done,M.acc)+` (${M.done}/${M.acc})`],['Remote assignments',M.off],['Remote-completed tasks',M.offDone],['Threats detected',M.det||0],['Events replayed',M.flushed],['Duplicates ignored',M.dup],['Conflicts detected',M.conf],['Evidence records retained',S.evidence.length],['Buffered now',S.buf.length],['Estimate coverage',Object.values(S.est).filter(Boolean).length+'/9 zones'],['Mean state error (covered samples)',M.errN?(M.err/M.errN).toFixed(2):'–'],['Blocked proposals',M.blocked],['Unauthorized I dispatches blocked',M.unauth||0]].map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join('');
+ $('#tasks').innerHTML='<tr><th>ID</th><th>Origin</th><th>Node</th><th>Status</th></tr>'+S.tasks.slice(-6).reverse().map(k=>`<tr><td>${k.id}</td><td>${k.origin}</td><td>${k.node||'–'}${k.off?' ↗':''}</td><td class="chip ${k.status}">${k.status}${k.retries?' (r'+k.retries+')':''}</td></tr>`).join('');
+ const act=Object.entries(S.units).filter(([i,u])=>u.st!='IDLE');
+ $('#units').innerHTML=act.length?'<tr><th>Unit</th><th>Type</th><th>Status</th><th>Target</th></tr>'+act.map(([i,u])=>`<tr><td>${i}</td><td>${i[0]=='I'?'Interceptor':'Rescue'}</td><td class="chip ${u.st=='RETURNING'?'AGING':'DONE'}">${u.st.replace('_',' ')}</td><td>${u.zone||'base'}</td></tr>`).join(''):'<tr><td class="sub">All 18 mobile units are idle at base.</td></tr>';
+ const visibleThreats=S.threats.filter(h=>$('#gt').checked||!!h.brain);$('#threatTitle').textContent=$('#gt').checked?'Threat board · evaluator ground truth':'Threat board · system-known events';
+ $('#threats').innerHTML=visibleThreats.length?'<tr><th>ID</th><th>Type</th><th>Status</th><th>Unit</th><th>Time</th></tr>'+visibleThreats.slice(-6).reverse().map(h=>{const c=h.st=='RESOLVED'?'DONE':h.st=='EXPIRED'?'FAILED':h.st=='RESPONDING'?'PENDING':h.brain?'AGING':'UNKNOWN',l=h.st=='RESOLVED'?'Resolved':h.st=='EXPIRED'?'Deadline missed':h.st=='RESPONDING'?'Responding':h.brain?'Known':'Unseen';return`<tr><td>${h.id}</td><td>${NMT[h.ty]}</td><td class="chip ${c}">${l}</td><td>${h.resp||'–'}</td><td>${h.rt!=null?h.rt+' ticks':'–'}</td></tr>`}).join(''):'<tr><td class="sub">No system-known events. Enable the evaluator overlay to inspect hidden ground truth.</td></tr>';
+ $('#evidence').innerHTML=S.evidence.length?'<tr><th>Event</th><th>Zone</th><th>Source</th><th>Value</th><th>Age</th><th>Delivery</th></tr>'+S.evidence.slice(-8).reverse().map(e=>`<tr><td>${e.id}</td><td>${e.zone}</td><td>${e.src}</td><td>${e.val.toFixed(2)}</td><td>${Math.max(0,S.t-e.tick)}</td><td>${e.replayed?'Replayed':'Received'}</td></tr>`).join(''):'<tr><td class="sub">No observations accepted yet.</td></tr>';
+ $('#props').innerHTML=S.props.length?'<tr><th>ID</th><th>Action</th><th>Risk</th><th>Authorization</th></tr>'+S.props.slice(-4).reverse().map(p=>`<tr><td>${p.id}</td><td>${p.iu} to ${p.th}: ${p.ty}<br><span class="sub">${p.why}</span></td><td>Action ${p.risk}<br>Zone ${p.zr}</td><td class="chip ${p.auth}">${p.auth}${p.auth=='PENDING'?` <button data-a="${p.id}:APPROVED">Approve</button> <button data-a="${p.id}:DENIED">Deny</button>`:''}</td></tr>`).join(''):'<tr><td class="sub">No proposals yet. A proposal is created when a detected event is known to the Brain and a suitable idle unit is reachable.</td></tr>';
+ {const stl=ZN.filter(z=>['AGING','STALE','UNKNOWN'].includes(fresh(z)[0])).length;
+ $('#kpi').innerHTML=[['Nodes online',up+'/37',up<37?'warn':'ok'],['Task completion',pc(M.done,M.acc),'ok'],['Offload success',pc(M.offDone,M.off),'ok'],['Aging or stale zones',stl+'/9',stl>2?'bad':stl?'warn':'ok'],['Threats resolved',(M.res||0)+'/'+(M.spawn||0),M.missed?'bad':'ok'],['Mean time to resolve',S.rts.length?(S.rts.reduce((a,b)=>a+b,0)/S.rts.length).toFixed(1)+' ticks':'–','ok'],['Unattended / escalated',(M.missed||0)+' / '+(M.harm||0),(M.missed||M.harm)?'warn':'ok']].map(k=>`<div class="kp ${k[2]}"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('')}
+ $('#log').innerHTML=S.log.join('')}
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-n],[data-l]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
+document.addEventListener('click',e=>{const t=e.target;
+ if(t.dataset.l!=null){const l=S.links[t.dataset.l];l.up=!l.up;log(`Link ${l.a} to ${l.b} ${l.up?'restored':'failed'}`,l.up?'ok':'bad');render()}
+ const n=t.closest&&t.closest('[data-n]');if(n){const x=S.nodes[n.dataset.n];x.up=!x.up;log(`${x.id} ${x.up?'restarted':'stopped'}`,x.up?'ok':'bad');render()}
+ if(t.dataset.a){const[id,a]=t.dataset.a.split(':'),p=S.props.find(p=>p.id==id);approve(p,a,false);render()}});
+function go(on){S.run=on;$('#run').textContent=on?'Pause':'Run';clearInterval(timer);if(on)timer=setInterval(()=>S.run&&tick(),650)}
+$('#run').onclick=()=>go(!S.run);$('#step').onclick=()=>{go(false);tick()};
+$('#reset').onclick=()=>{$('#cap').textContent='Reset. Press “Play guided demo” to start.';init()};
+$('#guided').onclick=()=>{init();S.guided=true;$('#auto').checked=true;$('#cap').textContent='Starting guided demo…';go(true)};
+$('#cut').onclick=()=>{CUT.forEach(([a,b])=>setLink(a,b,false));const cc=comps().length;log(`Mesh links cut. Current backbone components: ${cc}`,cc>1?'warn':'bad');render()};
+function runExp(){go(false);const kS=S,kR=R,kseed=seed,res={};
+ for(const md of['local','mesh']){const a={acc:0,done:0,off:0,offDone:0,lat:[],stale:0,fail:0};
+  for(let sd=1;sd<=8;sd++){seed=sd;MODE=md;init();S.hl=true;
+   for(let i=1;i<=44;i++){if(i==12)CUT.forEach(([x,y])=>setLink(x,y,false));if(i==22){S.nodes.F5.up=false;S.nodes.F8.up=false}if(i==34){CUT.forEach(([x,y])=>setLink(x,y,true));S.nodes.F5.up=true;S.nodes.F8.up=true}tick()}
+   a.acc+=S.m.acc;a.done+=S.m.done;a.lat.push(...S.lat);a.stale+=S.m.stale||0;a.fail+=S.tasks.filter(k=>k.status=='FAILED').length}
+  res[md]=a}
+ seed=kseed;MODE='mesh';S=kS;R=kR;S.hl=false;render();return res}
+function showExp(){const r=runExp(),f=a=>({c:a.acc?100*a.done/a.acc:0,l:a.lat.length?a.lat.reduce((x,y)=>x+y,0)/a.lat.length:0,x:a.fail/8,s:a.stale/8}),A=f(r.local),B=f(r.mesh),d=B.c-A.c;
+ const row=(n,a,b,u)=>`<tr><td>${n}</td><td>${a.toFixed(1)}${u}</td><td>${b.toFixed(1)}${u}</td></tr>`;
+ $('#expout').innerHTML=`<table><tr><th>Metric (average of 8 runs)</th><th>Local only</th><th>F-Mesh offload</th></tr>`+row('Task completion',A.c,B.c,'%')+row('Mean task latency (ticks)',A.l,B.l,'')+row('Failed tasks per run',A.x,B.x,'')+row('Stale zone-ticks per run',A.s,B.s,'')+`</table>
+ <p style="margin:10px 0 2px">Task completion</p><div class="bb l"><i style="width:${A.c}%"></i></div><div class="bb"><i style="width:${B.c}%"></i></div><div class="sub">Grey: local only. Green: F-Mesh offload.</div>
+ <p><b>Reading:</b> ${d>0.5?`offloading completed ${d.toFixed(1)} points more tasks`:d<-0.5?`offloading completed ${(-d).toFixed(1)} points fewer tasks`:'no clear completion difference'} in this scenario. Stale exposure matches because offloading moves computation, not sensor evidence. This tests one model and one fault pattern, so it is not proof of general benefit.</p>`}
+$('#runexp').onclick=showExp;$('#gt').onchange=()=>render();$('#view').onchange=()=>render();
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.id=='tab-'+b.dataset.tab))});
+$('#heal').onclick=()=>{S.links.forEach(l=>l.up=true);Object.values(S.nodes).forEach(n=>n.up=true);log('All links and nodes restored','ok');render()};
+init();
+function frame(){if(S&&S.nodes){const u=Math.min(1,(performance.now()-S.tm)/650),sv=$('#svg');
+ for(const n of Object.values(S.nodes)){if(!'DIR'.includes(n.role)||n.role=='B')continue;const x=n.px+(n.x-n.px)*u,y=n.py+(n.y-n.py)*u,gg=sv.querySelector(`[data-n="${n.id}"]`);if(gg)gg.setAttribute('transform',`translate(${x},${y})`);sv.querySelectorAll(`[data-dl="${n.id}"],[data-ml="${n.id}"]`).forEach(l=>{l.setAttribute('x1',x);l.setAttribute('y1',y)})}}
+ requestAnimationFrame(frame)}
+if(typeof requestAnimationFrame!='undefined')requestAnimationFrame(frame);
+</script></body></html>
